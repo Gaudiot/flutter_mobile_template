@@ -1,3 +1,16 @@
+enum HTTPMethodEnum {
+  unknown,
+  get_,
+  post,
+  put,
+  patch,
+  delete,
+  head,
+  connect,
+  options,
+  trace;
+}
+
 enum NetworkStatusEnum {
   // Custom status to handle unknown status codes
   unknown(message: "Unknown", code: 0),
@@ -97,4 +110,15 @@ enum NetworkStatusEnum {
 
   final String message;
   final int code;
+
+  static NetworkStatusEnum fromCode(int? statusCode) {
+    if (statusCode == null) {
+      return NetworkStatusEnum.unknown;
+    }
+
+    return NetworkStatusEnum.values.firstWhere(
+      (networkStatus) => statusCode == networkStatus.code,
+      orElse: () => NetworkStatusEnum.unknown,
+    );
+  }
 }

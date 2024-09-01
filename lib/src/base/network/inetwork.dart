@@ -8,6 +8,7 @@ abstract class INetwork {
 
   Future<Result<T, NetworkException>> get<T>({
     required String path,
+    Map<String, String>? queryParameters = const {},
   });
 
   Future<Result<S, NetworkException>> post<T, S>({
