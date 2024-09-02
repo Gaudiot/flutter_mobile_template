@@ -18,7 +18,7 @@ class SharedPreferencesAsyncStorage implements ILocalStorage {
   late final SharedPreferencesAsync _storage;
 
   /// A map of collections to their keys.
-  Map<String, List<String>> _collections = const {};
+  Map<String, List<String>> _collections = {};
 
   String _makeKey({
     required String collection,
@@ -33,7 +33,7 @@ class SharedPreferencesAsyncStorage implements ILocalStorage {
 
     final keys = await _storage.getKeys();
     _collections = keys.fold<Map<String, List<String>>>(
-      const {},
+      {},
       (keys, currentKey) {
         final keyParts = currentKey.split(".");
         keys[keyParts.first] = [...keys[keyParts.first] ?? [], keyParts.last];
@@ -49,24 +49,24 @@ class SharedPreferencesAsyncStorage implements ILocalStorage {
   }) async {
     final keyToGet = _makeKey(collection: collection, key: key);
     try {
-      if (T is List) {
+      if (T.toString().contains("List")) {
         throw Exception("SharedPreferences requires to use getList method");
       }
-      if (T is int) {
+      if (T.toString() == "int") {
         final value = await _storage.getInt(keyToGet);
-        return Result.ok(data: value as T);
+        return Result.ok(data: value as T?);
       }
-      if (T is double) {
+      if (T.toString() == "double") {
         final value = await _storage.getDouble(keyToGet);
-        return Result.ok(data: value as T);
+        return Result.ok(data: value as T?);
       }
-      if (T is String) {
+      if (T.toString() == "String") {
         final value = await _storage.getString(keyToGet);
-        return Result.ok(data: value as T);
+        return Result.ok(data: value as T?);
       }
-      if (T is bool) {
+      if (T.toString() == "bool") {
         final value = await _storage.getBool(keyToGet);
-        return Result.ok(data: value as T);
+        return Result.ok(data: value as T?);
       }
 
       final mapper = MapperRegistry.get<T>();
@@ -97,27 +97,27 @@ class SharedPreferencesAsyncStorage implements ILocalStorage {
   }) async {
     final keyToGet = _makeKey(collection: collection, key: key);
     try {
-      if (T is List) {
+      if (T.toString().contains("List")) {
         throw Exception("SharedPreferences requires to use getList method");
       }
-      if (T is int) {
+      if (T.toString() == "int") {
         final value = await _storage.getStringList(keyToGet);
         final data = value?.map((e) => int.parse(e)).toList();
-        return Result.ok(data: data as List<T>);
+        return Result.ok(data: data as List<T>?);
       }
-      if (T is double) {
+      if (T.toString() == "double") {
         final value = await _storage.getStringList(keyToGet);
         final data = value?.map((e) => double.parse(e)).toList();
-        return Result.ok(data: data as List<T>);
+        return Result.ok(data: data as List<T>?);
       }
-      if (T is String) {
+      if (T.toString() == "String") {
         final value = await _storage.getStringList(keyToGet);
-        return Result.ok(data: value as List<T>);
+        return Result.ok(data: value as List<T>?);
       }
-      if (T is bool) {
+      if (T.toString() == "bool") {
         final value = await _storage.getStringList(keyToGet);
         final data = value?.map((e) => bool.parse(e)).toList();
-        return Result.ok(data: data as List<T>);
+        return Result.ok(data: data as List<T>?);
       }
 
       final mapper = MapperRegistry.get<T>();
@@ -144,26 +144,26 @@ class SharedPreferencesAsyncStorage implements ILocalStorage {
     required String key,
     required T value,
   }) async {
-    final keyToSave = _makeKey(collection: collection, key: key);
-    _collections[collection] = [..._collections[collection] ?? [], key];
-
     try {
-      if (T is List) {
+      final keyToSave = _makeKey(collection: collection, key: key);
+      _collections[collection] = [..._collections[collection] ?? [], key];
+
+      if (T.toString().contains("List")) {
         throw Exception("SharedPreferences requires to use saveList method");
       }
-      if (T is int) {
+      if (T.toString() == "int") {
         await _storage.setInt(keyToSave, value as int);
         return Result.ok(data: true);
       }
-      if (T is double) {
+      if (T.toString() == "double") {
         await _storage.setDouble(keyToSave, value as double);
         return Result.ok(data: true);
       }
-      if (T is String) {
+      if (T.toString() == "String") {
         await _storage.setString(keyToSave, value as String);
         return Result.ok(data: true);
       }
-      if (T is bool) {
+      if (T.toString() == "bool") {
         await _storage.setBool(keyToSave, value as bool);
         return Result.ok(data: true);
       }
@@ -192,31 +192,30 @@ class SharedPreferencesAsyncStorage implements ILocalStorage {
     required String key,
     required List<T> value,
   }) async {
-    final keyToSave = _makeKey(collection: collection, key: key);
-    _collections[collection] = [..._collections[collection] ?? [], key];
-    final List<String> data = value.map((e) => jsonEncode(e as bool)).toList();
-
     try {
-      if (T is List) {
+      final keyToSave = _makeKey(collection: collection, key: key);
+      _collections[collection] = [..._collections[collection] ?? [], key];
+
+      if (T.toString().contains("List")) {
         throw Exception(
           "Cannot save list of lists. Try to save a list of objects",
         );
       }
-      if (T is int) {
+      if (T.toString() == "int") {
         final data = value.map<String>((e) => jsonEncode(e as int)).toList();
         await _storage.setStringList(keyToSave, data);
         return Result.ok(data: true);
       }
-      if (T is double) {
+      if (T.toString() == "double") {
         final data = value.map<String>((e) => jsonEncode(e as double)).toList();
         await _storage.setStringList(keyToSave, data);
         return Result.ok(data: true);
       }
-      if (T is String) {
+      if (T.toString() == "String") {
         await _storage.setStringList(keyToSave, value as List<String>);
         return Result.ok(data: true);
       }
-      if (T is bool) {
+      if (T.toString() == "bool") {
         final data = value.map<String>((e) => jsonEncode(e as bool)).toList();
         await _storage.setStringList(keyToSave, data);
         return Result.ok(data: true);
@@ -247,6 +246,7 @@ class SharedPreferencesAsyncStorage implements ILocalStorage {
   }) async {
     final keyToRemove = _makeKey(collection: collection, key: key);
     await _storage.remove(keyToRemove);
+    _collections[collection]?.remove(key);
 
     return true;
   }
