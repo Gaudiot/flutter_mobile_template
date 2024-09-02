@@ -1,7 +1,11 @@
 import "package:flutter_mobile_template/src/core/types/result_type.dart";
 
 abstract class ILocalStorage {
-  Future<void> init();
+  Future<void> init() async {
+    await runMigrations();
+  }
+
+  Future<void> runMigrations();
   Future<Result<bool, Exception>> save<T>({
     required String collection,
     required String key,

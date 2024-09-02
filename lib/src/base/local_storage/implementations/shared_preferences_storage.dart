@@ -14,7 +14,7 @@ class SharedPreferencesException extends LocalStorageException {
         );
 }
 
-class SharedPreferencesAsyncStorage implements ILocalStorage {
+class SharedPreferencesAsyncStorage extends ILocalStorage {
   late final SharedPreferencesAsync _storage;
 
   /// A map of collections to their keys.
@@ -31,6 +31,8 @@ class SharedPreferencesAsyncStorage implements ILocalStorage {
     SharedPreferences.setPrefix("uniqueAppId");
     _storage = SharedPreferencesAsync();
 
+    await runMigrations();
+
     final keys = await _storage.getKeys();
     _collections = keys.fold<Map<String, List<String>>>(
       {},
@@ -40,6 +42,12 @@ class SharedPreferencesAsyncStorage implements ILocalStorage {
         return keys;
       },
     );
+    super.init();
+  }
+
+  @override
+  Future<void> runMigrations() async {
+    // No migrations needed
   }
 
   @override
