@@ -23,10 +23,8 @@ class NetworkException implements Exception {
   bool get isServerError => statusCode.code >= 500 && statusCode.code < 600;
 
   @override
-  String toString() {
-    return """NetworkException: $message.
+  String toString() => """NetworkException: $message.
 Status code and message: ${statusCode.code} / ${statusCode.message}.
 URL: [${method.name}] $url.
 Network provider: $networkProvider.""";
-  }
 }
