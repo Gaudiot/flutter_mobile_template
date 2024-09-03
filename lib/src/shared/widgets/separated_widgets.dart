@@ -5,20 +5,20 @@ class SeparatedRow extends StatelessWidget {
   final Widget Function(BuildContext context, int index) itemBuilder;
   final Widget Function(BuildContext context, int index) separatorBuilder;
 
-  const SeparatedRow({
-    required this.itemCount,
-    required this.itemBuilder,
-    required this.separatorBuilder,
-    super.key,
-  });
-
-  SeparatedRow.builder({
+  SeparatedRow({
     required List<Widget> children,
     required Widget separator,
     super.key,
   })  : itemCount = children.length,
         itemBuilder = ((_, index) => children[index]),
         separatorBuilder = ((_, __) => separator);
+
+  const SeparatedRow.builder({
+    required this.itemCount,
+    required this.itemBuilder,
+    required this.separatorBuilder,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +42,20 @@ class SeparatedColumn extends StatelessWidget {
   final Widget Function(BuildContext context, int index) itemBuilder;
   final Widget Function(BuildContext context, int index) separatorBuilder;
 
-  const SeparatedColumn({
-    required this.itemCount,
-    required this.itemBuilder,
-    required this.separatorBuilder,
-    super.key,
-  });
-
-  SeparatedColumn.builder({
+  SeparatedColumn({
     required List<Widget> children,
     required Widget separator,
     super.key,
   })  : itemCount = children.length,
         itemBuilder = ((_, index) => children[index]),
         separatorBuilder = ((_, __) => separator);
+
+  const SeparatedColumn.builder({
+    required this.itemCount,
+    required this.itemBuilder,
+    required this.separatorBuilder,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
