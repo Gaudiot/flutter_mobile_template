@@ -60,21 +60,13 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
       if (T.toString().contains("List")) {
         throw Exception("SharedPreferences requires to use getList method");
       }
-      if (T.toString() == "int") {
-        final value = await _storage.getInt(keyToGet);
-        return Result.ok(data: value as T?);
-      }
-      if (T.toString() == "double") {
-        final value = await _storage.getDouble(keyToGet);
-        return Result.ok(data: value as T?);
-      }
-      if (T.toString() == "String") {
+      if (T == int || T == double || T == String || T == bool) {
         final value = await _storage.getString(keyToGet);
-        return Result.ok(data: value as T?);
-      }
-      if (T.toString() == "bool") {
-        final value = await _storage.getBool(keyToGet);
-        return Result.ok(data: value as T?);
+        if (value == null) {
+          return Result.ok(data: null);
+        }
+        final data = jsonDecode(value);
+        return Result.ok(data: data as T?);
       }
 
       final mapper = MapperRegistry.get<T>();
@@ -108,23 +100,12 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
       if (T.toString().contains("List")) {
         throw Exception("SharedPreferences requires to use getList method");
       }
-      if (T.toString() == "int") {
+      if (T == int || T == double || T == String || T == bool) {
         final value = await _storage.getStringList(keyToGet);
-        final data = value?.map((e) => int.parse(e)).toList();
-        return Result.ok(data: data as List<T>?);
-      }
-      if (T.toString() == "double") {
-        final value = await _storage.getStringList(keyToGet);
-        final data = value?.map((e) => double.parse(e)).toList();
-        return Result.ok(data: data as List<T>?);
-      }
-      if (T.toString() == "String") {
-        final value = await _storage.getStringList(keyToGet);
-        return Result.ok(data: value as List<T>?);
-      }
-      if (T.toString() == "bool") {
-        final value = await _storage.getStringList(keyToGet);
-        final data = value?.map((e) => bool.parse(e)).toList();
+        if (value == null) {
+          return Result.ok(data: null);
+        }
+        final data = value.map((e) => jsonDecode(e)).toList();
         return Result.ok(data: data as List<T>?);
       }
 
@@ -159,20 +140,9 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
       if (T.toString().contains("List")) {
         throw Exception("SharedPreferences requires to use saveList method");
       }
-      if (T.toString() == "int") {
-        await _storage.setInt(keyToSave, value as int);
-        return Result.ok(data: true);
-      }
-      if (T.toString() == "double") {
-        await _storage.setDouble(keyToSave, value as double);
-        return Result.ok(data: true);
-      }
-      if (T.toString() == "String") {
-        await _storage.setString(keyToSave, value as String);
-        return Result.ok(data: true);
-      }
-      if (T.toString() == "bool") {
-        await _storage.setBool(keyToSave, value as bool);
+      if (T == int || T == double || T == String || T == bool) {
+        final data = jsonEncode(value);
+        await _storage.setString(keyToSave, data);
         return Result.ok(data: true);
       }
 
@@ -209,22 +179,8 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
           "Cannot save list of lists. Try to save a list of objects",
         );
       }
-      if (T.toString() == "int") {
-        final data = value.map<String>((e) => jsonEncode(e as int)).toList();
-        await _storage.setStringList(keyToSave, data);
-        return Result.ok(data: true);
-      }
-      if (T.toString() == "double") {
-        final data = value.map<String>((e) => jsonEncode(e as double)).toList();
-        await _storage.setStringList(keyToSave, data);
-        return Result.ok(data: true);
-      }
-      if (T.toString() == "String") {
-        await _storage.setStringList(keyToSave, value as List<String>);
-        return Result.ok(data: true);
-      }
-      if (T.toString() == "bool") {
-        final data = value.map<String>((e) => jsonEncode(e as bool)).toList();
+      if (T == int || T == double || T == String || T == bool) {
+        final data = value.map<String>((e) => jsonEncode(e)).toList();
         await _storage.setStringList(keyToSave, data);
         return Result.ok(data: true);
       }
