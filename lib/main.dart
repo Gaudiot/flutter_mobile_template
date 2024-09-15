@@ -1,9 +1,14 @@
 import "package:flutter/material.dart";
-import "package:flutter_mobile_template/src/base/local_storage/ilocal_storage.dart";
-import "package:flutter_mobile_template/src/base/local_storage/implementations/shared_preferences_storage.dart";
+import "package:flutter_mobile_template/src/core/app_envs.dart";
 import "package:flutter_mobile_template/src/core/types/json_mapper.dart";
 
 void main() {
+Future<void> init() async {
+  await AppEnvs.init();
+}
+
+void main() async {
+  await init();
   runApp(const MainApp());
 }
 
@@ -54,7 +59,7 @@ class MainApp extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Hello World!"),
+              const Text("Hello World!"),
               TextButton(
                 onPressed: () async {
                   final ILocalStorage storage = SharedPreferencesAsyncStorage();
