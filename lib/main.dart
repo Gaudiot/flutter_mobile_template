@@ -1,8 +1,9 @@
 import "package:flutter/material.dart";
 import "package:flutter_mobile_template/src/core/app_envs.dart";
 import "package:flutter_mobile_template/src/core/types/json_mapper.dart";
+import "package:flutter_mobile_template/src/shared/widgets/debug_box.dart";
+import "package:flutter_mobile_template/src/shared/widgets/ui_search_bar.dart";
 
-void main() {
 Future<void> init() async {
   await AppEnvs.init();
 }
@@ -62,32 +63,17 @@ class MainApp extends StatelessWidget {
               const Text("Hello World!"),
               TextButton(
                 onPressed: () async {
-                  final ILocalStorage storage = SharedPreferencesAsyncStorage();
-                  await storage.init();
-
-                  await storage.delete(collection: "batata", key: "abc");
-
-                  final res = await storage.save<int>(
-                    collection: "batata",
-                    key: "abc",
-                    value: 1,
-                  );
-
-                  final result = await storage.get<int>(
-                    collection: "batata",
-                    key: "abc",
-                  );
-
-                  await storage.delete(collection: "batata", key: "abc");
-
-                  final result2 = await storage.get<int>(
-                    collection: "batata",
-                    key: "abc",
-                  );
-
                   return;
                 },
-                child: Text("aqui"),
+                child: const Text("Gaudiot"),
+              ),
+              DebugBox(
+                child: UISearchBar(
+                  hintText: "Search...",
+                  onChanged: (value) {
+                    print(value);
+                  },
+                ),
               ),
             ],
           ),
