@@ -1,7 +1,7 @@
 import "dart:convert";
 
 import "package:flutter_mobile_template/src/base/local_storage/ilocal_storage.dart";
-import "package:flutter_mobile_template/src/core/exceptions/exceptions.dart";
+import "package:flutter_mobile_template/src/base/local_storage/local_storage_exception.dart";
 import "package:flutter_mobile_template/src/core/types/json_mapper.dart";
 import "package:flutter_mobile_template/src/core/types/result_type.dart";
 import "package:shared_preferences/shared_preferences.dart";
@@ -15,7 +15,7 @@ class SharedPreferencesException extends LocalStorageException {
 }
 
 class SharedPreferencesAsyncStorage extends ILocalStorage {
-  late final SharedPreferencesAsync _storage;
+  final SharedPreferencesAsync _storage = SharedPreferencesAsync();
 
   /// A map of collections to their keys.
   Map<String, List<String>> _collections = {};
@@ -29,7 +29,6 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
   @override
   Future<void> init() async {
     SharedPreferences.setPrefix("uniqueAppId");
-    _storage = SharedPreferencesAsync();
 
     await runMigrations();
 
@@ -38,7 +37,10 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
       {},
       (keys, currentKey) {
         final keyParts = currentKey.split(".");
-        keys[keyParts.first] = [...keys[keyParts.first] ?? [], keyParts.last];
+        if (keys[keyParts.first]?.isEmpty ?? true) {
+          keys[keyParts.first] = [];
+        }
+        keys[keyParts.first] = [...keys[keyParts.first]!, keyParts.last];
         return keys;
       },
     );
@@ -51,6 +53,15 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
   }
 
   @override
+  Future<Result<bool, SharedPreferencesException>> hasKey({
+    required String collection,
+    required String key,
+  }) async {
+    final keyToGet = _makeKey(collection: collection, key: key);
+    return Result.ok(data: await _storage.containsKey(keyToGet));
+  }
+
+  @override
   Future<Result<T, SharedPreferencesException>> get<T>({
     required String collection,
     required String key,
@@ -60,11 +71,9 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
       if (T.toString().contains("List")) {
         throw Exception("SharedPreferences requires to use getList method");
       }
+      final value = await _storage.getString(keyToGet);
+      if (value == null) return Result.ok(data: null);
       if (T == int || T == double || T == String || T == bool) {
-        final value = await _storage.getString(keyToGet);
-        if (value == null) {
-          return Result.ok(data: null);
-        }
         final data = jsonDecode(value);
         return Result.ok(data: data as T?);
       }
@@ -72,11 +81,6 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
       final mapper = MapperRegistry.get<T>();
       if (mapper == null) {
         throw Exception("Mapper for type $T not found");
-      }
-
-      final value = await _storage.getString(keyToGet);
-      if (value == null) {
-        return Result.ok(data: null);
       }
 
       final data = mapper.fromJson(jsonDecode(value));
@@ -91,33 +95,34 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
   }
 
   @override
-  Future<Result<List<T>, SharedPreferencesException>> getList<T>({
+  Future<Result<List<T>, SharedPreferencesException>> getAllFromCollection<T>({
     required String collection,
-    required String key,
   }) async {
-    final keyToGet = _makeKey(collection: collection, key: key);
     try {
-      if (T.toString().contains("List")) {
-        throw Exception("SharedPreferences requires to use getList method");
-      }
-      if (T == int || T == double || T == String || T == bool) {
-        final value = await _storage.getStringList(keyToGet);
-        if (value == null) {
-          return Result.ok(data: null);
+      final keys = _collections[collection] ?? [];
+      final List<T> result = [];
+
+      for (final key in keys) {
+        final keyToGet = _makeKey(collection: collection, key: key);
+        final value = await _storage.getString(keyToGet);
+
+        if (value != null) {
+          if (T == int || T == double || T == String || T == bool) {
+            final data = jsonDecode(value);
+            result.add(data as T);
+          } else {
+            final mapper = MapperRegistry.get<T>();
+            if (mapper == null) {
+              throw Exception("Mapper para o tipo $T não encontrado");
+            }
+
+            final data = mapper.fromJson(jsonDecode(value));
+            result.add(data);
+          }
         }
-        final data = value.map((e) => jsonDecode(e)).toList();
-        return Result.ok(data: data as List<T>?);
       }
 
-      final mapper = MapperRegistry.get<T>();
-      if (mapper == null) {
-        throw Exception("Mapper for type $T not found");
-      }
-
-      final value = await _storage.getStringList(keyToGet);
-      final data = value?.map((e) => mapper.fromJson(jsonDecode(e))).toList();
-
-      return Result.ok(data: data);
+      return Result.ok(data: result);
     } catch (error) {
       return Result.error(
         error: SharedPreferencesException(
@@ -135,7 +140,10 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
   }) async {
     try {
       final keyToSave = _makeKey(collection: collection, key: key);
-      _collections[collection] = [..._collections[collection] ?? [], key];
+      final keyExists = await hasKey(collection: collection, key: key);
+      if (keyExists.hasData && !keyExists.data!) {
+        _collections[collection] = [..._collections[collection] ?? [], key];
+      }
 
       if (T.toString().contains("List")) {
         throw Exception("SharedPreferences requires to use saveList method");
@@ -153,45 +161,6 @@ class SharedPreferencesAsyncStorage extends ILocalStorage {
 
       final data = jsonEncode(mapper.toJson(value));
       await _storage.setString(keyToSave, data);
-
-      return Result.ok(data: true);
-    } catch (error) {
-      return Result.error(
-        error: SharedPreferencesException(
-          message: error.toString(),
-        ),
-      );
-    }
-  }
-
-  @override
-  Future<Result<bool, SharedPreferencesException>> saveList<T>({
-    required String collection,
-    required String key,
-    required List<T> value,
-  }) async {
-    try {
-      final keyToSave = _makeKey(collection: collection, key: key);
-      _collections[collection] = [..._collections[collection] ?? [], key];
-
-      if (T.toString().contains("List")) {
-        throw Exception(
-          "Cannot save list of lists. Try to save a list of objects",
-        );
-      }
-      if (T == int || T == double || T == String || T == bool) {
-        final data = value.map<String>((e) => jsonEncode(e)).toList();
-        await _storage.setStringList(keyToSave, data);
-        return Result.ok(data: true);
-      }
-
-      final mapper = MapperRegistry.get<T>();
-      if (mapper == null) {
-        throw Exception("Mapper for type $T not found");
-      }
-
-      final data = value.map((e) => jsonEncode(mapper.toJson(e))).toList();
-      await _storage.setStringList(keyToSave, data);
 
       return Result.ok(data: true);
     } catch (error) {
