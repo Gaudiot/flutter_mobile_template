@@ -1,11 +1,15 @@
 import "package:flutter/material.dart";
 import "package:flutter_mobile_template/src/core/app_envs.dart";
+import "package:flutter_mobile_template/src/core/local_storage/ilocal_storage.dart";
+import "package:flutter_mobile_template/src/core/locator.dart";
 import "package:flutter_mobile_template/src/core/types/json_mapper.dart";
 import "package:flutter_mobile_template/src/shared/widgets/debug_box.dart";
 import "package:flutter_mobile_template/src/shared/widgets/ui_search_bar.dart";
 
 Future<void> init() async {
+  initLocator();
   await AppEnvs.init();
+  await locator.get<ILocalStorage>().init();
 }
 
 void main() async {

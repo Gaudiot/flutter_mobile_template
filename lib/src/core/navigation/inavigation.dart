@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_mobile_template/src/base/enums/app_routes.enum.dart";
-import "package:flutter_mobile_template/src/core/navigation/implementation/go_router_navigation.dart";
+import "package:flutter_mobile_template/src/core/locator.dart";
 
 class HomeNavigation {}
 
@@ -21,7 +21,7 @@ abstract class INavigation {
 }
 
 class NavigationModule {
-  final INavigation _navigation = GoRouterNavigation();
+  final INavigation _navigation = locator.get<INavigation>();
 
   void goto({
     required AppRoutes path,
