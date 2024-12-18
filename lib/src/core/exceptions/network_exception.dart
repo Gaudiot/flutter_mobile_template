@@ -1,4 +1,4 @@
-import "package:flutter_mobile_template/src/core/enums/network_status_enum.dart";
+import "package:flutter_mobile_template/src/core/network/network_status_enum.dart";
 
 class NetworkException implements Exception {
   final HTTPMethodEnum method;

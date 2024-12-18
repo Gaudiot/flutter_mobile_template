@@ -1,7 +1,7 @@
 import "package:dio/dio.dart";
-import "package:flutter_mobile_template/src/base/network/inetwork.dart";
-import "package:flutter_mobile_template/src/core/enums/network_status_enum.dart";
 import "package:flutter_mobile_template/src/core/exceptions/network_exception.dart";
+import "package:flutter_mobile_template/src/core/network/inetwork.dart";
+import "package:flutter_mobile_template/src/core/network/network_status_enum.dart";
 import "package:flutter_mobile_template/src/core/types/json_mapper.dart";
 import "package:flutter_mobile_template/src/core/types/result_type.dart";
 

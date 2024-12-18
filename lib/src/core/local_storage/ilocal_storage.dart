@@ -1,4 +1,4 @@
-import "package:flutter_mobile_template/src/base/local_storage/local_storage_exception.dart";
+import "package:flutter_mobile_template/src/core/exceptions/local_storage_exception.dart";
 import "package:flutter_mobile_template/src/core/types/result_type.dart";
 
 abstract class ILocalStorage {

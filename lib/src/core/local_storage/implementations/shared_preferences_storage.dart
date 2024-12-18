@@ -1,7 +1,7 @@
 import "dart:convert";
 
-import "package:flutter_mobile_template/src/base/local_storage/ilocal_storage.dart";
-import "package:flutter_mobile_template/src/base/local_storage/local_storage_exception.dart";
+import "package:flutter_mobile_template/src/core/exceptions/exceptions.dart";
+import "package:flutter_mobile_template/src/core/local_storage/ilocal_storage.dart";
 import "package:flutter_mobile_template/src/core/types/json_mapper.dart";
 import "package:flutter_mobile_template/src/core/types/result_type.dart";
 import "package:shared_preferences/shared_preferences.dart";
